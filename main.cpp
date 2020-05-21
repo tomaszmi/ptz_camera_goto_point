@@ -22,7 +22,7 @@ Eigen::Matrix3f EulerAnglesToRotationMatrix(const Eigen::Vector3f& theta) {
   const Eigen::AngleAxisf y_angle_rot(theta[1], Eigen::Vector3f::UnitY());
 
   Eigen::Matrix3f m;
-  m = y_angle_rot * x_angle_rot;
+  m = x_angle_rot * y_angle_rot;
   return m;
 }
 
@@ -88,12 +88,19 @@ CalculateAbsolutePosition(const cv::Point &point, const cv::Matx33d &K,
                           const Eigen::Vector3f& current_euler_angles) {
 
   auto current_euler_angles_in_radians = DegreesToRadians(current_euler_angles);
-  current_euler_angles_in_radians[0] -= VSHIFT_RADIANS;
+  //current_euler_angles_in_radians[0] -= VSHIFT_RADIANS;
 
+/*
   const Eigen::Matrix3f global_to_current_rotation =
       EulerAnglesToRotationMatrix(current_euler_angles_in_radians).transpose();
   const Eigen::Matrix3f current_to_new_rotation = CalculateRotationMatrixForPoint(point, K);
   const Eigen::Matrix3f global_to_new_rotation = current_to_new_rotation * global_to_current_rotation;
+*/
+  const Eigen::Matrix3f current_to_global_rotation =
+    EulerAnglesToRotationMatrix(current_euler_angles_in_radians);
+  
+  auto point_in_global = current_to_global_rotation * point;
+  const Eigen::Matrix3f global_to_new_rotation = CalculateRotationMatrixForPoint(point_in_global, K);
 
   /*std::cout << "global_to_current_rotation: " << global_to_current_rotation << std::endl;
   std::cout << "current_to_new_rotation: " << current_to_new_rotation << std::endl;
@@ -101,10 +108,10 @@ CalculateAbsolutePosition(const cv::Point &point, const cv::Matx33d &K,
   std::cout << "new_to_global_rotation: " << global_to_new_rotation.transpose() << std::endl;*/
 
   Eigen::Vector3f angles =
-      global_to_new_rotation.transpose().eulerAngles(1, 0, 2);
+      global_to_new_rotation.eulerAngles(0, 1, 2);
   // the eulerAngles doc says: The returned angles are in the ranges [0:pi]x[-pi:pi]x[-pi:pi].
-  angles[1] += VSHIFT_RADIANS;
-  return RadiansToDegrees(NormalizeAngles(Eigen::Vector3f{angles[1], angles[0], angles[2]}));
+  //angles[1] += VSHIFT_RADIANS;
+  return RadiansToDegrees(NormalizeAngles(Eigen::Vector3f{angles[0], angles[1], angles[2]}));
 }
 
 struct MouseClickCallbackContext {
