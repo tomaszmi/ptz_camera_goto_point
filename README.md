@@ -34,8 +34,14 @@ corresponds to horizontal and vertical angles equal `0`. Pressing `q` while the 
   make
 ```
 
-## Running.
+## Running application.
 
 ```bash
 ./goto_point
+```
+
+## Running tests.
+
+```bash
+./inventory_test
 ```

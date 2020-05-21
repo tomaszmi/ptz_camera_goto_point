@@ -13,29 +13,43 @@ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -Wno-deprecated -Wno-deprecated-declarations")
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
+
+include(GTest)
 
 find_package(OpenCV REQUIRED core highgui)
 find_package(CURL REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(Glog REQUIRED)
 
-add_executable(goto_point
-  main.cpp
+add_library(inventory
+  position_calculator.cpp
   curl_error_category.cpp
   dahua_error_category.cpp
   dahua_ptz_camera.cpp
   http_interface.cpp
 )
 
-target_include_directories(goto_point SYSTEM
+target_include_directories(inventory SYSTEM
   PRIVATE ${OpenCV_INCLUDE_DIRS}
   PRIVATE ${CURL_INCLUDE_DIRS}
 )
 
-target_link_libraries(goto_point
+target_link_libraries(inventory
   ${OpenCV_LIBS}
   ${CURL_LIBRARIES}
   ${GLOG_LIBRARIES}
   Eigen3::Eigen
 )
+
+add_executable(goto_point
+  main.cpp
+)
+
+target_link_libraries(goto_point
+  inventory
+)
+
+cxx_test(inventory_test tests/position_calculator_test.cpp inventory)
