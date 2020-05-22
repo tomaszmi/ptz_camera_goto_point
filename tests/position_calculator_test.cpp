@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <random>
 
 #include "position_calculator.h"
 
@@ -22,6 +23,22 @@ const tpxai::CameraIntrinsics dahua_intrinsics{
   };
 
 constexpr float very_big_eps = 1.;
+
+TEST(PositionCalculator, principal_point_with_random_start) {
+  std::default_random_engine generator;
+  std::uniform_int_distribution<int> y_distribution(0, 360);
+  std::uniform_int_distribution<int> x_distribution(-15, 90);
+
+  for (int i = 0; i < 100; i++) {
+    float x_angle = x_distribution(generator);
+    float y_angle = y_distribution(generator);
+
+    Eigen::Vector3f result = tpxai::CalculateAbsolutePosition({1297, 743}, dahua_intrinsics.K, {x_angle, y_angle, 0});
+    std::cout << "Result: " << result.transpose() << std::endl;
+    EXPECT_NEAR(result[0], x_angle, very_big_eps);
+    EXPECT_NEAR(result[1], y_angle, very_big_eps);
+  }
+}
 
 TEST(PositionCalculator, principal_point) {
   Eigen::Vector3f result = tpxai::CalculateAbsolutePosition({1297, 743}, dahua_intrinsics.K, {0, 0, 0});
