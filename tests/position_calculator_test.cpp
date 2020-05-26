@@ -84,4 +84,15 @@ TEST(PositionCalculator, down_and_left_when_current_position_is_zero) {
   EXPECT_THAT(result[2], FloatNear(expected_xyz_euler_angles_in_degrees[2], very_big_eps));
 }
 
+TEST(PositionCalculator, troubles) {
+  const Eigen::Vector3f result =
+      tpxai::CalculateAbsolutePosition(cv::Point(197, 1350), dahua_intrinsics.K, Eigen::Vector3f(59.5003, 110.762, 0));
+  // result is (61.0448, 169.645, 0)
+  const Eigen::Vector3f expected_xyz_euler_angles_in_degrees(63,  161, 0);
+
+  EXPECT_THAT(result[0], FloatNear(expected_xyz_euler_angles_in_degrees[0], very_big_eps));
+  EXPECT_THAT(result[1], FloatNear(expected_xyz_euler_angles_in_degrees[1], very_big_eps));
+  EXPECT_THAT(result[2], FloatNear(expected_xyz_euler_angles_in_degrees[2], very_big_eps));
+}
+
 } // anonymous namespace
