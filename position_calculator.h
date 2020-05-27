@@ -13,7 +13,7 @@ constexpr float DegreesToRadians(float degrees) noexcept { return degrees * CV_P
 
 inline Eigen::Vector3f RadiansToDegrees(Eigen::Vector3f radians) noexcept { return radians * 180 / CV_PI; }
 
-Eigen::Vector3f CalculateAbsolutePosition(const cv::Point& point, const cv::Matx33d& K,
+Eigen::Vector3f CalculateAbsolutePosition(const cv::Point& point, const CameraIntrinsics& intrinsics,
                                           const Eigen::Vector3f& current_euler_angles_in_degrees);
 
 } // namespace tpxai
